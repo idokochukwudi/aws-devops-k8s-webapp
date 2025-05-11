@@ -1,0 +1,8 @@
+.env
+*.log
+packer/docker-build.log
+__pycache__/
+*.pyc
+*.terraform/
+*.tfstate
+.vscode/

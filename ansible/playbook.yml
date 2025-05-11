@@ -1,0 +1,35 @@
+---
+- name: Configure base Ubuntu server
+  hosts: all
+  become: true
+
+  tasks:
+    - name: Ensure Ansible temp directory exists
+      file:
+        path: /tmp/.ansible
+        state: directory
+        mode: '0777'
+
+    - name: Update APT packages
+      apt:
+        update_cache: yes
+      become: true
+
+    - name: Install Docker
+      apt:
+        name: docker.io
+        state: present
+      become: true
+
+    - name: Install Nginx
+      apt:
+        name: nginx
+        state: present
+      become: true
+
+    - name: Enable and start Docker
+      systemd:
+        name: docker
+        enabled: yes
+        state: started
+      become: true
