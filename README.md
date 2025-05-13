@@ -381,3 +381,65 @@ This often happens because the Ansible provisioner is not configured properly to
     - **Nginx** was installed and running.
     - **Docker** was installed and its service was active.
 
+##  Step 2.1: Provision EC2 Instance with Terraform Using the Custom AMI
+
+**Purpose**
+
+This step provisions an **EC2 instance** using the `AMI` we created with Packer. This instance can serve purposes like acting as a Bastion Host, hosting a service temporarily, or being part of my **EKS node group** (if needed).
+
+### 1: Provision VPC and Networking Resources with Terraform
+
+**Module: `terraform/modules/networking`**
+
+### 2: Deploy EC2 Instance Using Terraform Module (Post-Packer)
+
+**Module: `terraform/modules/ec2`**
+
+**Root `main.tf` (wires modules together):**
+
+**Root `terraform.tfvars` (example values):**
+
+![](./img/19.AMI-ID.png)
+
+**Now I can run terraform commands from the root:**
+
+```
+terraform init
+```
+![](./img/20.terraform-init.png)
+
+```
+terraform plan
+```
+
+![](./img/21.terraform-plan.png)
+
+![](./img/22.terraform-plan2.png)
+
+
+```
+terraform apply
+```
+
+![](./img/23.terraform-appy1.png)
+
+![](./img/24.terraform-apply2.png)
+
+
+**After executing the above commands from the Terraform root directory:**
+
+- A **Virtual Private Cloud** (`VPC`) and its `subnets` are created.
+  
+  ![](./img/vpc-created.png)
+
+  ![](./img/subnets-created.png)
+
+- The subnet IDs are passed into the EC2 module.
+
+- An EC2 instance is then deployed using the AMI previously built with Packer.
+
+![](./img/ec2-created.png)
+
+![](./img/ssh-into-ec2.png)
+
+

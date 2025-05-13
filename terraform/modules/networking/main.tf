@@ -1,7 +1,7 @@
-# Create a VPC
+# main.tf
 resource "aws_vpc" "main" {
-  cidr_block = "10.0.0.0/16"
-  enable_dns_support = true
+  cidr_block           = var.vpc_cidr
+  enable_dns_support   = true
   enable_dns_hostnames = true
 
   tags = {
@@ -9,29 +9,26 @@ resource "aws_vpc" "main" {
   }
 }
 
-# Public Subnet 1
 resource "aws_subnet" "public_1" {
   vpc_id            = aws_vpc.main.id
-  cidr_block        = "10.0.1.0/24"
-  availability_zone = "us-east-1a"
+  cidr_block        = var.public_subnet_1_cidr
+  availability_zone = var.azs[0]
 
   tags = {
     Name = "public-subnet-1"
   }
 }
 
-# Public Subnet 2
 resource "aws_subnet" "public_2" {
   vpc_id            = aws_vpc.main.id
-  cidr_block        = "10.0.2.0/24"
-  availability_zone = "us-east-1b"
+  cidr_block        = var.public_subnet_2_cidr
+  availability_zone = var.azs[1]
 
   tags = {
     Name = "public-subnet-2"
   }
 }
 
-# Internet Gateway
 resource "aws_internet_gateway" "igw" {
   vpc_id = aws_vpc.main.id
 
@@ -40,7 +37,6 @@ resource "aws_internet_gateway" "igw" {
   }
 }
 
-# Route Table for Public Subnet
 resource "aws_route_table" "public" {
   vpc_id = aws_vpc.main.id
 
@@ -54,7 +50,6 @@ resource "aws_route_table" "public" {
   }
 }
 
-# Associate Route Table with Subnet
 resource "aws_route_table_association" "a" {
   subnet_id      = aws_subnet.public_1.id
   route_table_id = aws_route_table.public.id
@@ -63,4 +58,38 @@ resource "aws_route_table_association" "a" {
 resource "aws_route_table_association" "b" {
   subnet_id      = aws_subnet.public_2.id
   route_table_id = aws_route_table.public.id
+}
+
+resource "aws_security_group" "ec2_sg" {
+  name        = "ec2-security-group"
+  description = "Allow SSH and HTTP"
+  vpc_id      = aws_vpc.main.id
+
+  ingress {
+    from_port   = 22
+    to_port     = 22
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+    description = "Allow SSH"
+  }
+
+  ingress {
+    from_port   = 80
+    to_port     = 80
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+    description = "Allow HTTP"
+  }
+
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+    description = "Allow all outbound traffic"
+  }
+
+  tags = {
+    Name = "ec2-security-group"
+  }
 }
