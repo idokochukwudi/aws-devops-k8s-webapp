@@ -443,3 +443,31 @@ terraform apply
 ![](./img/ssh-into-ec2.png)
 
 
+### ✅ Step 3: Let’s Proceed with the `RDS Module`
+
+**Purpose of This Step**
+
+Provision an **Amazon RDS instance** using `Terraform` for persistent data storage. This is typically used for PostgreSQL or MySQL, and allows your application to interact with a managed relational database.
+
+### Terraform RDS Module Structure
+
+**Module Path:** `terraform/modules/rds/main.tf`
+
+**Purpose:**
+
+This file provisions a PostgreSQL RDS instance within specified subnets and security group. It uses a subnet group for isolation and places the DB in private subnets for security.
+
+`terraform/modules/rds/variables.tf`
+
+**Purpose:**
+
+Defines all required variables to deploy an RDS instance, including subnet info, security group, and credentials. These variables promote flexibility and reusability.
+
+`terraform/modules/rds/outputs.tf`
+
+**Purpose:**
+
+Exposes the RDS connection endpoint and instance ID to other modules or the root level (like EC2 or EKS modules that need to connect to the database).
+
+### Root Module Usage (root main.tf addition)
+

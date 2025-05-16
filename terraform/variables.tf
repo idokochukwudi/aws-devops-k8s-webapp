@@ -39,3 +39,30 @@ variable "key_name" {
   description = "SSH key pair name"
   type        = string
 }
+
+# RDS
+variable "allocated_storage" {}
+variable "engine_version" {}
+variable "instance_class" {}
+variable "db_name" {}
+variable "db_username" {}
+variable "db_password" {}
+variable "db_subnet_group" {}
+
+variable "allowed_app_subnet_cidr" {
+  description = "CIDR block allowed to access RDS and other internal services"
+  type        = string
+}
+
+variable "allowed_ssh_cidr" {
+  description = "CIDR block allowed to SSH into EC2"
+  type        = string
+}
+
+variable "private_1_cidr" {
+  description = "CIDR block for private subnet 1"
+}
+
+variable "private_2_cidr" {
+  description = "CIDR block for private subnet 2"
+}
