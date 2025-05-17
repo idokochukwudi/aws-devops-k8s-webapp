@@ -20,37 +20,6 @@ In this project, I showcase my `DevOps` skills by deploying a **lightweight appl
 
 ### 📁 File Structure
 
-```bash
-devops-portfolio-project/
-├── terraform/
-│   ├── main.tf                  # Main configuration file
-│   ├── variables.tf             # Input variables
-│   ├── outputs.tf               # Output values
-│   ├── vpc.tf                   # VPC, subnets, IGW, etc.
-│   ├── security_groups.tf       # Security groups
-│   ├── eks.tf                   # EKS cluster (if using Kubernetes)
-│   ├── ec2.tf                   # EC2 instance (for Packer + Ansible)
-│   ├── rds.tf                   # PostgreSQL DB setup
-│   ├── monitoring.tf            # CloudWatch, Prometheus setup, etc.
-│   ├── iam.tf                   # IAM roles/policies
-│   └── backend.tf               # Remote state backend config (optional)
-├── packer/
-│   └── ubuntu-image.json        # Packer template for EC2 image
-├── ansible/
-│   ├── playbook.yml             # Main Ansible playbook
-│   └── roles/                   # Ansible roles (e.g., nginx, app, db)
-├── k8s/
-│   ├── deployment.yaml          # App deployment on Kubernetes
-│   ├── service.yaml             # Service for the app
-│   ├── postgres-secret.yaml     # Secret for DB connection
-│   ├── rbac.yaml                # RBAC policy definitions
-│   └── configmap.yaml           # Any required configs
-├── scripts/
-│   └── ci-cd-pipeline.sh        # CI/CD pipeline script (or use GitHub Actions)
-├── .gitignore
-├── README.md
-└── LICENSE
-```
 
 ## 🌐 Step-by-Step Implementation
 
@@ -470,4 +439,6 @@ Defines all required variables to deploy an RDS instance, including subnet info,
 Exposes the RDS connection endpoint and instance ID to other modules or the root level (like EC2 or EKS modules that need to connect to the database).
 
 ### Root Module Usage (root main.tf addition)
+
+
 
