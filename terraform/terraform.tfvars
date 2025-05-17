@@ -16,7 +16,7 @@ azs                   = ["us-east-1a", "us-east-1b"]
 # EC2 Instance Settings
 # =====================
 
-ami_id                = "ami-0271208f29c52055b"
+ami_id                = "ami-0deb99630c51db514"
 instance_type         = "t2.micro"
 key_name              = "cloudit-key"
 
@@ -25,7 +25,7 @@ key_name              = "cloudit-key"
 # RDS (PostgreSQL) DB Settings
 # ============================
 allocated_storage = 20
-engine_version = "13.4"
+engine_version = "13.12"
 instance_class = "db.t3.micro"
 db_name = "mydb"
 
