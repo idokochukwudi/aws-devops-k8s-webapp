@@ -15,9 +15,11 @@ module "ec2" {
   ami_id         = var.ami_id
   instance_type  = var.instance_type
   subnet_id      = module.networking.subnet_ids[0]
+  private_subnet_id  = module.networking.private_subnet_ids[0]
   key_name       = var.key_name
   vpc_id            = module.networking.vpc_id
   allowed_ssh_cidr  = var.allowed_ssh_cidr
+  bastion_sg_id      = module.bastion.bastion_sg_id
 }
 
 module "rds" {
@@ -32,4 +34,14 @@ module "rds" {
   ec2_security_group_id = module.ec2.ec2_sg_id
   vpc_id = module.networking.vpc_id
   db_sg_id = module.ec2.ec2_sg_id
+}
+
+module "bastion" {
+  source                = "./modules/bastion"
+  bastion_ami_id        = var.bastion_ami_id
+  bastion_instance_type = var.bastion_instance_type
+  bastion_subnet_id     = module.networking.subnet_ids[0] # public subnet
+  vpc_id                = module.networking.vpc_id
+  key_name              = var.key_name
+  allowed_ssh_cidr      = var.my_ip_cidr
 }

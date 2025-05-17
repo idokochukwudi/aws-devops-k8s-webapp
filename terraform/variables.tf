@@ -66,3 +66,12 @@ variable "private_1_cidr" {
 variable "private_2_cidr" {
   description = "CIDR block for private subnet 2"
 }
+
+# bastion
+
+variable "bastion_ami_id" {}
+variable "bastion_instance_type" {}
+variable "my_ip_cidr" {}
+
+
+

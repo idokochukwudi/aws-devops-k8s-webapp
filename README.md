@@ -440,5 +440,194 @@ Exposes the RDS connection endpoint and instance ID to other modules or the root
 
 ### Root Module Usage (root main.tf addition)
 
+## RUN TERRAFORM APPLY
+
+### Error
+
+![](./img/26.terraform-apply-error1.png)
+
+The error message indicates that my Terraform code is trying to create an RDS instance with PostgreSQL version 13.12, but AWS does not support that specific version anymore.
+
+### Solution
+
+Find a supported PostgreSQL version:
+
+Get All Supported Versions
+
+Use `AWS CLI` to check which versions are supported in your region:
+
+```bash
+aws rds describe-db-engine-versions --engine postgres --query "DBEngineVersions[*].EngineVersion"
+```
+
+![](./img/27.rds-version-list.png)
+
+Based on the supported PostgreSQL versions returned by your AWS CLI command, I can now update my **Terraform configuration** to use a **valid version**.
+
+In my root modules/terraform.tfvars, I will change:
+
+```bash
+engine_version = "13.12"
+```
+to a supported version like:
+
+```bash
+engine_version = "13.21" # Latest version in the 13.x series
+```
+
+![](./img/28.rds-version-changed-to-13.21.png)
+
+### RDS CREATED
+
+![](./img/29.rds-created.png)
+
+![](./img/rds-instance.png)
+
+![](./img/rds-instance-2.png)
+
+
+
+## Stage: Secure Private EC2 with a Bastion Host
+
+### Objective
+
+To **move the EC2 instance** to a `private subnet` and **create a Bastion Host** in the `public subnet` for secure `SSH access` using the official Amazon Linux 2 AMI.
+
+**This approach:**
+
+- Enhances security by removing direct internet access to the main EC2 instance.
+
+- Implements a jump-box pattern (Bastion Host) to manage access.
+
+## Implementation Steps
+
+### Step 1: Move EC2 Instance to a Private Subnet
+
+**Purpose:**
+
+Ensure the EC2 instance is not directly exposed to the internet, limiting exposure and aligning with best security practices.
+
+**Action:**
+
+In my **EC2 module configuration** (`main.tf`):
+
+```bash
+# I will use a private subnet for the EC2 instance
+subnet_id = subnet_id = var.private_subnet_id
+
+# Then in modules/ec2/variables.tf
+variable "private_subnet_id" {}
+
+# Then in your root main.tf where you're calling the ec2 module: Update the module block to pass the private subnet ID:
+
+module "ec2" {
+  source             = "./modules/ec2"
+  private_subnet_id  = module.networking.private_subnet_ids[0]
+  # ...other variables
+}
+
+
+# Allow SSH only from Bastion subnet (e.g., 10.0.1.0/24)
+allowed_ssh_cidr = "10.0.1.0/24"
+```
+
+### Step 2: Create the Bastion Host in the Public Subnet
+
+**Purpose:**
+
+Provide a secure and auditable access point (jump box) to the private EC2 instance.
+
+📁 File: modules/bastion/main.tf
+
+### Step 3: Define Bastion Module Variables
+📁 File: modules/bastion/variables.tf
+
+📁 File: modules/bastion/outputs.tf
+
+### Step 4: Call Bastion Module from Root
+📁 File: `main.tf` (root)
+
+### Step 5: Add Root-Level Variables for Bastion
+
+📁 File: `variables.tf` (root)
+
+📁 File: `terraform.tfvars`
+
+![](./img/30.terraform-init-added-bastion.png)
+
+![](./img/31.bastion-terraform-plan.png)
+
+| Item                     | Status       |
+| ------------------------ | ------------ |
+| EC2 in private subnet    | ✅ Configured |
+| Bastion in public subnet | ✅ Configured |
+| SSH SG rules updated     | ✅ Restricted |
+| Key pair working         | ✅ Verified   |
+
+
+## Updated EC2 Module Configuration (`modules/ec2`)
+
+Previously, SSH access to the EC2 instance was configured using a hardcoded CIDR block (e.g., `10.0.1.0/24`) in the EC2 instance’s security group. This was not ideal for maintainability or security. The new approach replaces the hardcoded CIDR block with a reference to the Bastion Host's Security Group, allowing SSH only from the Bastion.
+
+
+## What Was Updated and Why
+
+1. `main.tf` in `modules/ec2/`
+
+**What Changed:**
+
+- The `aws_security_group` no longer contains an inline ingress rule for SSH.
+
+- A dedicated `aws_security_group_rule` **resource** (`allow_ssh_from_bastion`) was added to manage SSH access more explicitly.
+
+- `source_security_group_id` references the Bastion Host's security group, which allows fine-grained access control.
+
+**Why:**
+
+- Improves modularity and clarity.
+
+- Avoids hardcoding CIDR blocks.
+
+- Enables SSH access only from a trusted Bastion Host.
+
+2. variables.tf in modules/ec2/
+
+**What Changed:**
+
+- Added a new input variable: `bastion_sg_id`.
+
+**Why:**
+
+- This allows the EC2 module to dynamically accept the Bastion Host's security group ID and use it in the `aws_security_group_rule`.
+
+3. `outputs.tf` in `modules/bastion/`
+
+**What Changed:**
+
+- Introduced an output named bastion_sg_id to expose the Bastion Host’s security group ID.
+
+**Why:**
+
+- So the root module can retrieve and pass this value into the EC2 module.
+
+4. Root Module Call to module.ec2
+
+**What Changed:**
+
+- Added `bastion_sg_id` = `module.bastion.bastion_sg_id` to the EC2 module call block.
+
+**Why:**
+
+- Connects the Bastion output to the EC2 input, completing the flow of access control.
+
+### Impact
+
+- SSH to the EC2 instance is now securely locked down to only traffic coming from the Bastion Host.
+
+- Future changes to the Bastion Host SG will automatically apply to EC2 access as well.
+
+- All configuration is now reusable, traceable, and easier to maintain
+
+
 
 
