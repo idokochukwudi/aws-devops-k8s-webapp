@@ -629,5 +629,59 @@ Previously, SSH access to the EC2 instance was configured using a hardcoded CIDR
 - All configuration is now reusable, traceable, and easier to maintain
 
 
+## SSH Access via Bastion Host
+
+### Step 1: SSH into the Bastion Host
+
+![](./img/33.ssh-into-bastion-host.png)
+
+
+### Step 2: SSH into Private EC2 Instance via Bastion Host
+
+- Add a ProxyJump Config
+
+  - Edit SSH config file:
+
+  ```bash
+  nano ~/.ssh/config
+  ```
+
+Add:
+
+```bash
+Host bastion
+  HostName <bastion_public_ip>
+  User ec2-user
+  IdentityFile ~/.ssh/cloudit-key
+
+Host private-instance
+  HostName <private_instance_private_ip>
+  User ubuntu
+  IdentityFile ~/.ssh/cloudit-key
+  ProxyJump bastion
+```
+
+I can just `SSH` into the **private instance or bastion-host** from my local terminal like this:
+
+```bash
+ssh bastion
+```
+![](./img/33.ssh-into-bastion-host.png)
+
+
+```bash
+ssh private-instance
+```
+
+![](./img/34.ssh-private-instance.png)
+
+After implementing **SSH access through a Bastion Host**, I successfully configured SSH to connect to both the Bastion Host and the Private EC2 Instance directly from my **local machine** using the `ProxyJump` option in the **SSH configuration file**.
+
+By adding the appropriate `ProxyJump config`, I was able to streamline the connection process, enabling secure and seamless SSH access to the private instance without manually hopping through the Bastion Host each time.
+
+From the attached screenshot, you’ll notice that `Docker` and `Nginx` were already installed on the **private EC2 instance**. These were **provisioned** automatically using `Packer` in combination with `Ansible`, demonstrating the success of our preconfigured image build process.
+
+
+
 
 

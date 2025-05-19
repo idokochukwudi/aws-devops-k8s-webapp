@@ -16,7 +16,7 @@ azs                   = ["us-east-1a", "us-east-1b"]
 # EC2 Instance Settings
 # =====================
 
-ami_id                = "ami-09382da2dc76dcf9f"
+ami_id                = "ami-03d41b7c96c2afd82"
 instance_type         = "t2.micro"
 key_name              = "cloudit-key"
 
@@ -31,7 +31,7 @@ db_name = "mydb"
 
 # Subnet group name for placing the RDS instance within selected subnets
 db_subnet_group       = "my-db-subnet-group"
-allowed_ssh_cidr  = "10.0.1.0/24"
+allowed_ssh_cidr  = "105.112.114.0/32"
 
 # bastion
 bastion_ami_id        = "ami-0c02fb55956c7d316" # Amazon Linux 2 (official)
